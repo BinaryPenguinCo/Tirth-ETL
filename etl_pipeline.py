@@ -27,7 +27,8 @@ def run_etl():
         # Convert Patient_ID to UUID type
         df["Patient_ID"] = df["Patient_ID"].astype(str)
 
-        df["Ingestion_Timestamp"] = datetime.now()
+        df["Last_Visit_Date"] = pd.to_datetime(df["Last_Visit_Date"]).dt.date
+
 
         print("✅ Transformation complete")
 
@@ -35,12 +36,14 @@ def run_etl():
 
         # Insert in smaller chunks (safer)
         df.to_sql(
-            name="patients",
-            con=engine,
-            if_exists="append",
-            index=False,
-            chunksize=1000
-        )
+    name="patients",
+    schema="public",
+    con=engine,
+    if_exists="append",
+    index=False,
+    chunksize=1000,
+    method="multi"
+)
 
         print(f"🚀 Successfully inserted {len(df)} records!")
 

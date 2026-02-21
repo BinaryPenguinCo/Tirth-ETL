@@ -36,7 +36,7 @@ def create_table():
 
         create_table_query = """
         CREATE TABLE IF NOT EXISTS patients (
-            Patient_ID UUID PRIMARY KEY,
+            Patient_ID VARCHAR(50) PRIMARY KEY,
             Full_Name VARCHAR(150) NOT NULL,
             Age INTEGER,
             Gender VARCHAR(20),
