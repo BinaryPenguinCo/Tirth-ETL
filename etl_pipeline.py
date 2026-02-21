@@ -19,7 +19,7 @@ def run_etl():
     try:
         print("Starting ETL Process...")
 
-        # READ
+        # READ CSV FILE INTO PYTHON DATAFRAME
         df = pd.read_csv("data/raw_patient_data.csv")
         print(f"Loaded {len(df)} records from CSV")
 
@@ -34,7 +34,7 @@ def run_etl():
 
         print("Transformation complete")
 
-        engine = create_engine(DATABASE_URL)
+        engine = create_engine(DATABASE_URL) #CONNECT TO DB USING SQLALCHEMY ENGINE
 
         # Try a standard pandas insert first, but capture full errors
         try:
