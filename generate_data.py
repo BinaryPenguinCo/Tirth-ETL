@@ -1,12 +1,12 @@
-import uuid
-import random
-import os
+import uuid #FOR UNIQUE PATIENT ID
+import random #FOR RANDOM AGE MATE
+import os #CREATE DATA FOLER MATE
 from faker import Faker
 import pandas as pd
 from datetime import datetime, timedelta
 
-# Indian localization
-fake = Faker(["hi_IN", "en_IN"])
+
+fake = Faker(["hi_IN", "en_IN"]) #CREATE FAKER OBJ
 
 NUM_RECORDS = 10000
 
@@ -14,7 +14,7 @@ INDIAN_STATES = [
     "Maharashtra", "Delhi", "Karnataka", "Tamil Nadu",
     "Gujarat", "Rajasthan", "Uttar Pradesh", "West Bengal",
     "Punjab", "Kerala", "DL"  
-]
+] #LIST
 
 BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"]
 
@@ -37,4 +37,4 @@ df = pd.DataFrame(data)
 os.makedirs("data", exist_ok=True)
 df.to_csv("data/raw_patient_data.csv", index=False)
 
-print("✅ Generated 10,000 Indian patient records successfully!")
+print("Generated 10,000 Indian patient records successfully!")
