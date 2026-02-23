@@ -14,10 +14,10 @@ def generate_patient():
     return {
         "Patient_ID": str(uuid.uuid4()),
         "Full_Name": fake.name(),
-        "Age": fake.random_int(),
-        "Gender": fake.random_element(),
+        "Age": fake.random_int(min=1, max=90),
+        "Gender": fake.random_element(elements=("Male", "Female", "Other")),
         "State": fake.state(),
-        "Blood_Group": fake.blood_group(),
+        "Blood_Group": fake.random_element(elements=("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")),
         "Last_Visit_Date": fake.date(),
         "Doctor_Name": fake.name()
     }
