@@ -10,31 +10,33 @@ fake = Faker(["hi_IN", "en_IN"]) #CREATE FAKER OBJ
 
 NUM_RECORDS = 10000
 
-INDIAN_STATES = [
-    "Maharashtra", "Delhi", "Karnataka", "Tamil Nadu",
-    "Gujarat", "Rajasthan", "Uttar Pradesh", "West Bengal",
-    "Punjab", "Kerala", "DL"  
-] #LIST
-
-BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"]
-
-data = []
-
-for _ in range(NUM_RECORDS):
-    record = {
+# Function to generate one patient record
+def generate_patient():
+    return {
         "Patient_ID": str(uuid.uuid4()),
         "Full_Name": fake.name(),
-        "Age": random.randint(1, 90),
-        "Gender": random.choice(["Male", "Female", "Other"]),
-        "State": random.choice(INDIAN_STATES),
-        "Blood_Group": random.choice(BLOOD_GROUPS),
-        "Last_Visit_Date": fake.date_between(start_date="-2y", end_date="today")
+        "Age": fake.random_int(min=1, max=90),
+        "Gender": fake.random_element(elements=("Male", "Female", "Other")),
+        "State": fake.state(),
+        "Blood_Group": fake.random_element(elements=("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")),
+        "Last_Visit_Date": fake.date_between(start_date="-2y", end_date="today"),
+        "Doctor_Name": fake.name()
     }
-    data.append(record)
 
-df = pd.DataFrame(data)
 
-os.makedirs("data", exist_ok=True)
-df.to_csv("data/raw_patient_data.csv", index=False)
+# Function to generate dataset
+def generate_dataset(n):
+    return [generate_patient() for _ in range(n)]
 
-print("Generated 10,000 Indian patient records successfully!")
+
+# Function to save CSV
+def save_csv(data):
+    df = pd.DataFrame(data)
+    os.makedirs("data", exist_ok=True)
+    df.to_csv("data/raw_patient_data.csv", index=False)
+    print(f"{len(df)} records generated successfully!")
+
+
+if __name__ == "__main__":
+    data = generate_dataset(NUM_RECORDS)
+    save_csv(data)
