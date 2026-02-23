@@ -19,7 +19,7 @@ def generate_patient():
         "State": fake.state(),
         "Blood_Group": fake.random_element(elements=("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")),
         "Last_Visit_Date": fake.date(),
-        "Doctor_Name": fake.name()
+        "Doctor_Name": fake.name() #"Dr. " + fake.name()
     }
 
 
