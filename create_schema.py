@@ -1,5 +1,6 @@
 import psycopg2
 from config import DB_CONFIG
+import pandas as pd
 
 
 def create_database():
@@ -31,31 +32,36 @@ def create_database():
 
 
 def create_table():
-    try:
-        conn = psycopg2.connect(**DB_CONFIG)  # must include database
-        cursor = conn.cursor()
 
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS patients (
-            Patient_ID VARCHAR(50) PRIMARY KEY,
-            Full_Name VARCHAR(150) NOT NULL,
-            Age INTEGER,
-            Gender VARCHAR(20),
-            State VARCHAR(100),
-            Blood_Group VARCHAR(5),
-            Last_Visit_Date DATE,
-            Ingestion_Timestamp TIMESTAMP
-        );
-        """)
+    # read csv
+    df = pd.read_csv("data/raw_patient_data.csv")
 
-        conn.commit()
-        print("Table created successfully!")
+    columns = df.columns #COLUMN NAMES FROM CSV
 
-        cursor.close()
-        conn.close()
+    column_list = []
 
-    except Exception as e:
-        print("Error creating table:", e)
+    for col in columns: #HAR COLUMN PR LOOP CHALEGA
+        column_list.append(f"{col} VARCHAR(255)")
+
+    columns_sql = ",".join(column_list)
+
+    query = f"""
+    CREATE TABLE IF NOT EXISTS patients (
+    {columns_sql}
+    );
+    """
+
+    conn = psycopg2.connect(**DB_CONFIG)
+    cursor = conn.cursor()
+
+    cursor.execute(query)
+
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    print("Table created dynamically")
 
 
 if __name__ == "__main__":
