@@ -25,7 +25,7 @@ def run_etl():
 
         # TRANSFORM
         df["State"] = df["State"].apply(standardize_state)
-        df["Ingestion_Timestamp"] = datetime.now()
+        df["Ingestion_Timestamp"] = datetime.now() #ADD CURRENT TIMESTAMP FOR INGESTION TIME
 
         # Convert Patient_ID to UUID type
         df["Patient_ID"] = df["Patient_ID"].astype(str)
@@ -58,15 +58,39 @@ def run_etl():
             try:
                 print("Attempting COPY fallback using psycopg2...")
                 csv_buffer = io.StringIO()
+                # Select only the columns that exist in the DB table and write them to CSV
+                cols = [
+                    "Patient_ID",
+                    "Full_Name",
+                    "Age",
+                    "Gender",
+                    "State",
+                    "Blood_Group",
+                    "Last_Visit_Date",
+                    "Ingestion_Timestamp",
+                ]
+                # If any expected column is missing, raise a clear error
+                missing = [c for c in cols if c not in df.columns]
+                if missing:
+                    raise RuntimeError(f"Missing expected columns before COPY: {missing}")
+
+                df_to_copy = df[cols]
                 # Write DataFrame to csv in memory (include header)
-                df.to_csv(csv_buffer, index=False)
+                df_to_copy.to_csv(csv_buffer, index=False)
                 csv_buffer.seek(0)
 
                 # connect using DB_CONFIG
                 with psycopg2.connect(**DB_CONFIG) as conn:
                     with conn.cursor() as cur:
-                        # Use COPY with header; table in public schema
-                        copy_sql = "COPY public.patients FROM STDIN WITH CSV HEADER"
+                        # Ensure the ingestion_timestamp column exists (older tables may lack it)
+                        cur.execute(
+                            "ALTER TABLE public.patients ADD COLUMN IF NOT EXISTS ingestion_timestamp TIMESTAMP;"
+                        )
+                        # Use COPY specifying target columns (header present in CSV)
+                        copy_sql = (
+                            "COPY public.patients (Patient_ID, Full_Name, Age, Gender, State, "
+                            "Blood_Group, Last_Visit_Date, Ingestion_Timestamp) FROM STDIN WITH CSV HEADER"
+                        )
                         cur.copy_expert(sql=copy_sql, file=csv_buffer)
                     conn.commit()
 
